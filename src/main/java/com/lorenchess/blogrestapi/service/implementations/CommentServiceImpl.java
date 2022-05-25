@@ -8,6 +8,7 @@ import com.lorenchess.blogrestapi.payloadDTO.CommentDto;
 import com.lorenchess.blogrestapi.repository.CommentRepo;
 import com.lorenchess.blogrestapi.repository.PostRepo;
 import com.lorenchess.blogrestapi.service.CommentService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,11 +21,13 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepo commentRepo;
     private final PostRepo postRepo;
+    private final ModelMapper mapper;
 
-    @Autowired
-    public CommentServiceImpl(CommentRepo commentRepo, PostRepo postRepo) {
+
+    public CommentServiceImpl(CommentRepo commentRepo, PostRepo postRepo, ModelMapper mapper) {
         this.commentRepo = commentRepo;
         this.postRepo = postRepo;
+        this.mapper = mapper;
     }
 
 
@@ -90,16 +93,11 @@ public class CommentServiceImpl implements CommentService {
 
     //helper methods to convert from entity to DTO or from DTO to entity
     private CommentDto mapToDTO(Comment commentEntity) {
-        CommentDto commentResponse = new CommentDto();
-        BeanUtils.copyProperties(commentEntity, commentResponse);
-
-        return commentResponse;
+        return mapper.map(commentEntity, CommentDto.class);
     }
 
     private Comment mapToEntity(CommentDto commentDto) {
-        Comment commentResponse = new Comment();
-        BeanUtils.copyProperties(commentDto, commentResponse);
-        return commentResponse;
+        return mapper.map(commentDto, Comment.class);
     }
 
     private Comment findCommentById(Long commentId) {

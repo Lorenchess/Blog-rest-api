@@ -6,7 +6,9 @@ import com.lorenchess.blogrestapi.payloadDTO.PostDto;
 import com.lorenchess.blogrestapi.payloadDTO.PostResponse;
 import com.lorenchess.blogrestapi.repository.PostRepo;
 import com.lorenchess.blogrestapi.service.PostService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,15 +16,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
 
     private final PostRepo postRepo;
 
-    public PostServiceImpl(PostRepo postRepo) {
+    private final ModelMapper mapper;
+
+    public PostServiceImpl(PostRepo postRepo, ModelMapper mapper) {
         this.postRepo = postRepo;
+        this.mapper = mapper;
     }
 
 
@@ -101,15 +105,11 @@ public class PostServiceImpl implements PostService {
 
     //Helper method to map Entity to DTO response to user
     private PostDto mapToDTO(Post post) {
-        PostDto postResponse = new PostDto();
-        BeanUtils.copyProperties(post, postResponse);
-        return postResponse;
+        return mapper.map(post, PostDto.class);
     }
 
     //Helper method to map DTO to Entity
     private Post mapToEntity(PostDto postDto) {
-        Post post = new Post();
-        BeanUtils.copyProperties(postDto, post);
-        return post;
+        return mapper.map(postDto, Post.class);
     }
 }
