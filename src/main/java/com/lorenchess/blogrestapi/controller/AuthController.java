@@ -2,10 +2,12 @@ package com.lorenchess.blogrestapi.controller;
 
 import com.lorenchess.blogrestapi.entities.Role;
 import com.lorenchess.blogrestapi.entities.UserEntity;
+import com.lorenchess.blogrestapi.payloadDTO.JWTAuthResponse;
 import com.lorenchess.blogrestapi.payloadDTO.LoginDto;
 import com.lorenchess.blogrestapi.payloadDTO.SignUpDto;
 import com.lorenchess.blogrestapi.repository.RoleRepo;
 import com.lorenchess.blogrestapi.repository.UserRepo;
+import com.lorenchess.blogrestapi.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,8 +40,11 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtTokenProvider tokenProvider;
+
     @PostMapping("/signin")
-    public ResponseEntity<String> authenticateUser(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<JWTAuthResponse> authenticateUser(@RequestBody LoginDto loginDto) {
         Authentication authentication = authenticationManager
                 .authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsernameOrEmail(),
@@ -47,7 +52,10 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return new ResponseEntity<>("User signed-in successfully!", HttpStatus.OK);
+        //get token from token provider
+        String token = tokenProvider.generateToken(authentication);
+
+        return ResponseEntity.ok(new JWTAuthResponse(token));
 
     }
 
